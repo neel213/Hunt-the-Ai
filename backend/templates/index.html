@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hunt the AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #auth {
+            margin-top: 20px;
+        }
+
+        #auth input, #auth button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        #chat-container {
+            width: 80%;
+            max-width: 600px;
+            height: 400px;
+            position: relative;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: none; /* Hidden until room is joined */
+        }
+
+        #chat {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        #chat-disabled-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #333;
+            border-radius: 8px;
+        }
+
+        #chat p {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+
+        #chat p strong {
+            color: #007bff;
+        }
+
+        #input-area {
+            width: 80%;
+            max-width: 600px;
+            display: none; /* Hidden until room is joined */
+            gap: 10px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        #input-area button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #input-area button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #333;
+            display: none; /* Hidden until room is joined */
+        }
+
+        #voting-ui {
+            display: none; /* Hidden until voting phase */
+            width: 80%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        #voting-ui h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #voting-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-vote {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .player-vote button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .player-vote.voted {
+            background-color: #e2f3e2;
+            border-color: #28a745;
+        }
+
+        .player-vote button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #votes-display {
+            display: none;
+            width: 80%;
+            max-width: 600px;
+            margin-top: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #votes-display h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #votes-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #votes-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        #votes-list li:last-child {
+            border-bottom: none;
+        }
+
+        #results {
+            display: none;
+            width: 80%;
+            max-width: 600px;
+            margin-top: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #results h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .ai-reveal {
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth">
+        <input type="text" id="room_id" placeholder="Room ID">
+        <input type="text" id="pin" placeholder="PIN">
+        <button onclick="joinRoom()">Join Room</button>
+    </div>
+    <div id="timer">Time Left: <span id="time">--</span></div>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <div id="chat-disabled-overlay">Chat will be enabled when the game starts</div>
+    </div>
+    <div id="input-area">
+        <input type="text" id="message" placeholder="Type your message..." disabled>
+        <button onclick="sendMessage()" id="send-button" disabled>Send</button>
+    </div>
+    <div id="voting-ui">
+        <h3>Vote for a player:</h3>
+        <div id="voting-buttons"></div>
+    </div>
+    <div id="votes-display">
+        <h3>Votes Cast:</h3>
+        <ul id="votes-list"></ul>
+    </div>
+    <div id="results">
+        <h3>Game Results</h3>
+        <div id="ai-identity"></div>
+        <div id="points-display"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let playerName = '';
+        let playerList = [];
+        let hasVoted = false;
+        let votesTracker = {};
+        let currentPhase = 'chat';
+
+        // Handle room creation
+        socket.on('room_created', (data) => {
+            alert(`Room created! Room ID: ${data.room_id}, PIN: ${data.pin}`);
+            document.getElementById('room_id').value = data.room_id;
+            document.getElementById('pin').value = data.pin;
+        });
+
+        // Join room with PIN
+        function joinRoom() {
+            let room_id = document.getElementById('room_id').value.trim();
+            let pin = document.getElementById('pin').value.trim();
+
+            if (!room_id || !pin) {
+                alert('Please enter both Room ID and PIN.');
+                return;
+            }
+
+            socket.emit('join_room', { room_id, pin });
+        }
+
+        // Handle room joined
+        socket.on('room_joined', (data) => {
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+            document.getElementById('chat-disabled-overlay').style.display = 'flex';
+            document.getElementById('timer').style.display = 'block';
+            playerName = data.player_name;
+            playerList = data.player_list || [];
+
+            console.log("Player list at join:", playerList);
+            alert(`Joined room ${data.room_id} as ${data.player_name}`);
+        });
+
+        // Handle player updates
+        socket.on('player_update', (data) => {
+            playerList = data.player_list || [];
+            console.log("Updated player list:", playerList);
+
+            // If we're in voting phase, update voting buttons
+            if (currentPhase === 'vote') {
+                showVotingButtons();
+            }
+        });
+
+        // Handle join error
+        socket.on('join_error', (data) => {
+            alert(data.message);
+        });
+
+        // Handle new messages
+        socket.on('new_message', (data) => {
+            console.log(`New Message: ${data.user}: ${data.text}`);
+            const chat = document.getElementById('chat');
+            const messageElement = document.createElement('p');
+            messageElement.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+            chat.appendChild(messageElement);
+            chat.scrollTop = chat.scrollHeight;
+        });
+
+        // Handle timer updates
+        socket.on('timer_update', (data) => {
+            document.getElementById('time').textContent = data.time;
+
+            // Disable input and button when timer reaches 0
+            if (data.phase === 'chat' && data.time === 0) {
+                document.getElementById('message').disabled = true;
+                document.getElementById('send-button').disabled = true;
+            }
+
+            // When voting timer reaches 0, show all votes
+            if (data.phase === 'vote' && data.time === 0) {
+                document.getElementById('votes-display').style.display = 'block';
+            }
+        });
+
+        // Handle phase change
+        socket.on('phase_change', (data) => {
+            currentPhase = data.phase;
+
+            if (data.phase === 'chat' && data.chat_enabled) {
+                // Enable chat input
+                document.getElementById('input-area').style.display = 'flex';
+                document.getElementById('message').disabled = false;
+                document.getElementById('send-button').disabled = false;
+                document.getElementById('chat-disabled-overlay').style.display = 'none';
+            }
+
+            if (data.phase === 'vote') {
+                // Hide chat input and show voting UI
+                document.getElementById('input-area').style.display = 'none';
+                document.getElementById('voting-ui').style.display = 'block';
+                document.getElementById('votes-display').style.display = 'block';
+
+                // Show voting buttons with actual player list
+                showVotingButtons();
+            }
+        });
+
+        // Show voting buttons
+        function showVotingButtons() {
+            const votingButtons = document.getElementById('voting-buttons');
+            votingButtons.innerHTML = ''; // Clear previous buttons
+
+            // Sort players in order (Player 1, Player 2, etc.)
+            const sortedPlayers = [...playerList].sort((a, b) => {
+                const numA = parseInt(a.split(' ')[1]);
+                const numB = parseInt(b.split(' ')[1]);
+                return numA - numB;
+            });
+
+            // Create voting buttons for each player except yourself
+            sortedPlayers.forEach((player) => {
+                if (player !== playerName) {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = 'player-vote';
+                    playerDiv.id = `vote-${player.replace(/\s+/g, '-')}`;
+                    playerDiv.innerHTML = `
+                        <span>${player}</span>
+                        <button onclick="castVote('${player}')" ${hasVoted ? 'disabled' : ''}>Vote</button>
+                    `;
+                    votingButtons.appendChild(playerDiv);
+                }
+            });
+
+            // If already voted, highlight the selected player
+            if (hasVoted && votesTracker[playerName]) {
+                const votedPlayer = votesTracker[playerName];
+                const playerDiv = document.getElementById(`vote-${votedPlayer.replace(/\s+/g, '-')}`);
+                if (playerDiv) {
+                    playerDiv.classList.add('voted');
+                }
+            }
+        }
+
+        // Cast vote
+        function castVote(player) {
+            if (!hasVoted) {
+                socket.emit('vote', { voted: player });
+                hasVoted = true;
+
+                // Disable all vote buttons
+                const voteButtons = document.querySelectorAll('.player-vote button');
+                voteButtons.forEach(button => {
+                    button.disabled = true;
+                });
+
+                // Highlight the selected player
+                const playerDiv = document.getElementById(`vote-${player.replace(/\s+/g, '-')}`);
+                if (playerDiv) {
+                    playerDiv.classList.add('voted');
+                }
+
+                votesTracker[playerName] = player;
+                updateVotesDisplay();
+            }
+        }
+
+        // Handle vote updates
+        socket.on('vote_update', (data) => {
+            console.log(`Vote update: ${data.voter} voted for ${data.voted}`);
+
+            // Update local vote tracking
+            votesTracker[data.voter] = data.voted;
+
+            // Update the votes display
+            updateVotesDisplay();
+        });
+
+        // Update votes display
+        function updateVotesDisplay() {
+            const votesList = document.getElementById('votes-list');
+            votesList.innerHTML = '';
+
+            for (const [voter, voted] of Object.entries(votesTracker)) {
+                const voteItem = document.createElement('li');
+                voteItem.textContent = `${voter} voted for ${voted}`;
+                votesList.appendChild(voteItem);
+            }
+        }
+
+        // Handle vote error
+        socket.on('vote_error', (data) => {
+            alert(data.message);
+            hasVoted = false; // Allow the player to vote again
+
+            // Re-enable vote buttons
+            const voteButtons = document.querySelectorAll('.player-vote button');
+            voteButtons.forEach(button => {
+                button.disabled = false;
+            });
+
+            // Remove voted class from any highlighted items
+            const votedDivs = document.querySelectorAll('.player-vote.voted');
+            votedDivs.forEach(div => {
+                div.classList.remove('voted');
+            });
+        });
+
+        // Handle game results
+        socket.on('game_results', (data) => {
+            document.getElementById('voting-ui').style.display = 'none';
+            document.getElementById('votes-display').style.display = 'block';
+            document.getElementById('results').style.display = 'block';
+
+            // Clear previous results
+            document.getElementById('ai-identity').innerHTML = '';
+            document.getElementById('points-display').innerHTML = '';
+            document.getElementById('votes-list').innerHTML = '';
+
+            // Show AI identity
+            const aiIdentity = document.getElementById('ai-identity');
+            aiIdentity.innerHTML = `
+                <p>The AI player was: <span class="ai-reveal">${data.ai_name}</span></p>
+                <p>${data.ai_was_voted_out ? '✅ The AI was voted out!' : '❌ The AI was not voted out!'}</p>
+            `;
+
+            // Show scoreboard with all players
+            const pointsDisplay = document.getElementById('points-display');
+            pointsDisplay.innerHTML = '<h4>Scoreboard:</h4><ul>';
+
+            // Sort players by number (Player 1, Player 2, etc.)
+            const players = Object.keys(data.points).sort((a, b) => {
+                return parseInt(a.split(' ')[1]) - parseInt(b.split(' ')[1]);
+            });
+
+            players.forEach(player => {
+                const points = data.points[player] || 0;
+                const isAI = player === data.ai_name;
+                const votedCorrect = (data.votes[player] === data.ai_name);
+
+                pointsDisplay.innerHTML += `
+                    <li>
+                        ${player}${isAI ? ' (AI)' : ''}: ${points} points
+                        ${votedCorrect ? '✅' : ''}
+                        ${player === data.voted_out_player ? '👋 Voted out' : ''}
+                    </li>
+                `;
+            });
+            pointsDisplay.innerHTML += '</ul>';
+
+            // Show all votes
+            const votesList = document.getElementById('votes-list');
+            if (data.votes) {
+                Object.entries(data.votes).forEach(([voter, voted]) => {
+                    const voteItem = document.createElement('li');
+                    if (voted === data.ai_name) {
+                        voteItem.innerHTML = `${voter} → <span class="highlight">${voted}</span> (Correct)`;
+                    } else if (voted === data.voted_out_player) {
+                        voteItem.innerHTML = `${voter} → <span class="ai-reveal">${voted}</span>`;
+                    } else {
+                        voteItem.innerHTML = `${voter} → ${voted}`;
+                    }
+                    votesList.appendChild(voteItem);
+                });
+            }
+        });
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('message');
+            const msg = input.value.trim();
+            if (msg) {
+                socket.emit('send_message', { message: msg });
+                input.value = '';
+            }
+        }
+
+        // Send message on Enter key press
+        document.getElementById('message').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Auto-focus the textbox
+        document.getElementById('message').focus();
+    </script>
+</body>
+</html>

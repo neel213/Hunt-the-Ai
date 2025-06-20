@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AI Detection Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-card {
+            transition: transform 0.2s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .badge {
+            font-size: 0.8rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background-color: #28a745;
+        }
+
+        .status-full {
+            background-color: #dc3545;
+        }
+
+        .status-waiting {
+            background-color: #ffc107;
+        }
+
+        .status-started {
+            background-color: #007bff;
+        }
+
+        .player-count {
+            font-weight: bold;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mb-4 text-center">AI Detection Game - Admin Panel</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Create New Room</h5>
+                </div>
+                <div class="card-body">
+                    <form id="create-room-form">
+                        <div class="mb-3">
+                            <label for="player-count" class="form-label">Number of Human Players:</label>
+                            <select class="form-select" id="player-count" name="player-count">
+                                <option value="4">4 Players</option>
+                                <option value="5">5 Players</option>
+                                <option value="6">6 Players</option>
+                                <option value="7">7 Players</option>
+                                <option value="8">8 Players</option>
+                                <option value="9">9 Players</option>
+                                <option value="10" selected>10 Players</option>
+                            </select>
+                            <div class="form-text">Each room will also have 1 AI player</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Room</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Room Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div><span class="status-indicator status-waiting"></span> Waiting for players</div>
+                        <div><span class="status-indicator status-active"></span> Active (4+ players)</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div><span class="status-indicator status-full"></span> Full</div>
+                        <div><span class="status-indicator status-started"></span> Game in progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Active Rooms</h5>
+            <button id="refresh-rooms" class="btn btn-sm btn-light">Refresh</button>
+        </div>
+        <div class="card-body">
+            <div class="row" id="rooms-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading rooms...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container for notifications -->
+<div class="toast-container"></div>
+
+<!-- Room details modal -->
+<div class="modal fade" id="room-details-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Room Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Room ID:</strong> <span id="modal-room-id"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>PIN:</strong> <span id="modal-room-pin"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Players:</strong> <span id="modal-room-players"></span>/<span
+                        id="modal-room-max-players"></span>
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong> <span id="modal-room-status"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="modal-start-game">Start Game</button>
+                <button type="button" class="btn btn-info" id="modal-spectate-btn">Spectate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+<script>
+    // Connect to Socket.IO server
+    const socket = io();
+    let roomDetailsModal;
+
+    // DOM elements
+    const roomsContainer = document.getElementById('rooms-container');
+    const createRoomForm = document.getElementById('create-room-form');
+    const refreshRoomsBtn = document.getElementById('refresh-rooms');
+
+    // Initialize Bootstrap components
+    document.addEventListener('DOMContentLoaded', function () {
+        roomDetailsModal = new bootstrap.Modal(document.getElementById('room-details-modal'));
+
+        // Request active rooms on page load
+        socket.emit('get_active_rooms');
+    });
+
+    // Socket.IO event handlers
+    socket.on('connect', () => {
+        showToast('Connected to server', 'success');
+    });
+
+    socket.on('disconnect', () => {
+        showToast('Disconnected from server', 'danger');
+    });
+
+    socket.on('active_rooms_update', (rooms) => {
+        updateRoomsDisplay(rooms);
+    });
+
+    socket.on('room_created', (data) => {
+        showToast(`Room ${data.room_id} created with PIN ${data.pin}`, 'success');
+        socket.emit('get_active_rooms');
+    });
+
+    socket.on('game_started', (data) => {
+        showToast(`Game started in room ${data.room_id}`, 'info');
+        socket.emit('get_active_rooms');
+    });
+
+    socket.on('start_error', (data) => {
+        showToast(`Error: ${data.message}`, 'danger');
+    });
+
+    // Event listeners
+    createRoomForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const playerCount = document.getElementById('player-count').value;
+        socket.emit('create_dynamic_room', {player_count: parseInt(playerCount)});
+    });
+
+    refreshRoomsBtn.addEventListener('click', () => {
+        roomsContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Refreshing rooms...</p>
+                </div>
+            `;
+        socket.emit('get_active_rooms');
+    });
+
+    // Functions
+    function updateRoomsDisplay(rooms) {
+        if (!Array.isArray(rooms) || rooms.length === 0) {
+            roomsContainer.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <p class="mb-0">No active rooms found</p>
+                    </div>
+                `;
+            return;
+        }
+
+        let html = '';
+        rooms.forEach(room => {
+            const isFull = room.players >= room.max_players;
+            const isStarted = room.started;
+            const canStart = room.players >= 4 && !isStarted;
+
+            let statusClass, statusText;
+            if (isStarted) {
+                statusClass = 'status-started';
+                statusText = 'Game in progress';
+            } else if (isFull) {
+                statusClass = 'status-full';
+                statusText = 'Full';
+            } else if (room.players >= 4) {
+                statusClass = 'status-active';
+                statusText = 'Ready to start';
+            } else {
+                statusClass = 'status-waiting';
+                statusText = 'Waiting for players';
+            }
+
+            html += `
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="card room-card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Room ${room.id}</h6>
+                                <span class="badge bg-primary">PIN: ${room.pin}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><span class="status-indicator ${statusClass}"></span> ${statusText}</div>
+                                    <div class="player-count">${room.players}/${room.max_players}</div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-sm btn-outline-primary view-details-btn"
+                                        data-room-id="${room.id}"
+                                        data-room-pin="${room.pin}"
+                                        data-room-players="${room.players}"
+                                        data-room-max-players="${room.max_players}"
+                                        data-room-status="${statusText}"
+                                        data-room-started="${isStarted}">
+                                        View Details
+                                    </button>
+                                    <button class="btn btn-sm ${canStart ? 'btn-success' : 'btn-secondary'} start-game-btn"
+                                        data-room-id="${room.id}"
+                                        ${!canStart ? 'disabled' : ''}>
+                                        ${isStarted ? 'Game in Progress' : 'Start Game'}
+                                    </button>
+                                    <a href="/spectate.html?room=${room.id}" class="btn btn-sm btn-info" target="_blank">
+                                        Spectate
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        });
+
+        roomsContainer.innerHTML = html;
+
+        // Add event listeners to the dynamically created buttons
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roomId = e.target.dataset.roomId;
+                const roomPin = e.target.dataset.roomPin;
+                const roomPlayers = e.target.dataset.roomPlayers;
+                const roomMaxPlayers = e.target.dataset.roomMaxPlayers;
+                const roomStatus = e.target.dataset.roomStatus;
+                const roomStarted = e.target.dataset.roomStarted === 'true';
+
+                document.getElementById('modal-room-id').textContent = roomId;
+                document.getElementById('modal-room-pin').textContent = roomPin;
+                document.getElementById('modal-room-players').textContent = roomPlayers;
+                document.getElementById('modal-room-max-players').textContent = roomMaxPlayers;
+                document.getElementById('modal-room-status').textContent = roomStatus;
+
+                const startBtn = document.getElementById('modal-start-game');
+                if (roomStarted || parseInt(roomPlayers) < 4) {
+                    startBtn.disabled = true;
+                    startBtn.textContent = roomStarted ? 'Game in Progress' : 'Not Enough Players';
+                } else {
+                    startBtn.disabled = false;
+                    startBtn.textContent = 'Start Game';
+                    startBtn.dataset.roomId = roomId;
+                }
+
+                const spectateBtn = document.getElementById('modal-spectate-btn');
+                spectateBtn.onclick = function() {
+                    window.open(`/spectate.html?room=${roomId}`, '_blank');
+                };
+
+                roomDetailsModal.show();
+            });
+        });
+
+        document.querySelectorAll('.start-game-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roomId = e.target.dataset.roomId;
+                socket.emit('start_game', {room_id: parseInt(roomId)});
+            });
+        });
+
+        document.getElementById('modal-start-game').addEventListener('click', (e) => {
+            const roomId = e.target.dataset.roomId;
+            socket.emit('start_game', {room_id: parseInt(roomId)});
+            roomDetailsModal.hide();
+        });
+    }
+
+    function showToast(message, type = 'info') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {autohide: true, delay: 3000});
+        toast.show();
+
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            toastElement.remove();
+        });
+    }
+</script>
+</body>
+</html>

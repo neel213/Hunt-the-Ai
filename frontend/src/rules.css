@@ -1,0 +1,94 @@
+.rules-container {
+    background: linear-gradient(to bottom, #001f4d, #003366);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px;
+    min-height: 120vh;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.content-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 30px auto;
+    width: 80%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.rules-section, .scoring-section {
+    width: 45%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+h3 {
+    font-size: 20px;
+    margin-top: 15px;
+    color: #ffcc00;
+}
+
+.rules-list, .prize-list, .scoring-list {
+    text-align: left;
+    padding: 0;
+    list-style-type: none;
+}
+
+.rules-list li, .prize-list li, .scoring-list li {
+    font-size: 16px;
+    line-height: 1.5;
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.rules-list li::before,
+.prize-list li::before,
+.scoring-list li::before {
+    content: "✔️";
+    color: #ffcc00;
+    position: absolute;
+    left: 0;
+}
+
+.continue-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #0059b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.continue-btn:hover {
+    background: #0073e6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-box {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    .rules-section, .scoring-section {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}

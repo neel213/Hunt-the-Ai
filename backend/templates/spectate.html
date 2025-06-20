@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spectate Game</title>
+    <style>
+        .spectate-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .message .user {
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .message .text {
+            margin-top: 4px;
+        }
+        .phase-indicator {
+            background: #1a73e8;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        #timer-display {
+            background: #34a853;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="spectate-container">
+    <h2>Spectating Game Room: <span id="room-id-display"></span></h2>
+    <div id="phase-display" class="phase-indicator">Loading game...</div>
+    <div id="timer-display" class="phase-indicator">--:--</div>
+    <div id="chat"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomId = urlParams.get('room');
+
+    document.getElementById('room-id-display').textContent = roomId;
+
+    // Format time display
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Join spectate room
+    socket.emit('spectate_join', {room_id: roomId});
+
+    // Handle game state updates
+    socket.on('spectate_state', (data) => {
+        document.getElementById('phase-display').textContent =
+                `Current Phase: ${data.phase.toUpperCase()}`;
+        document.getElementById('timer-display').textContent =
+                `Time Left: ${formatTime(data.timer)}`;
+    });
+
+    socket.on('timer_update', (data) => {
+        document.getElementById('timer-display').textContent =
+                `Time Left: ${formatTime(data.time)}`;
+    });
+
+    socket.on('phase_change', (data) => {
+        document.getElementById('phase-display').textContent =
+                `Current Phase: ${data.phase.toUpperCase()}`;
+        document.getElementById('timer-display').textContent =
+                `Time Left: ${formatTime(data.timer)}`;
+
+        const chat = document.getElementById('chat');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.innerHTML = `⚡ Phase changed to <strong>${data.phase.toUpperCase()}</strong>`;
+        chat.appendChild(messageElement);
+        chat.scrollTop = chat.scrollHeight;
+    });
+
+    // Handle new messages
+    socket.on('new_message', (data) => {
+        const chat = document.getElementById('chat');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.innerHTML = `
+            <div class="user">${data.user}:</div>
+            <div class="text">${data.text}</div>
+        `;
+        chat.appendChild(messageElement);
+        chat.scrollTop = chat.scrollHeight;
+    });
+</script>
+</body>
+</html>

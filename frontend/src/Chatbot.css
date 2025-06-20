@@ -1,0 +1,102 @@
+/* Chatbot.css */
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #1a1a1a;
+  color: white;
+  border-radius: 10px;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.player-list {
+  background: #2a2a2a;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 200px;
+}
+
+.chat-window {
+  height: 400px;
+  overflow-y: auto;
+  background: #2a2a2a;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.message {
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.message.system {
+  background: #333;
+  color: #aaa;
+}
+
+.message.player {
+  background: #0066cc;
+  color: white;
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  background: #00cc66;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.player-item {
+  padding: 5px;
+  background: #333;
+  margin: 3px 0;
+  border-radius: 3px;
+}
+
+.player-info {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.current-player-name {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.message.current-player {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-left: 3px solid #4CAF50;
+}
+
+.user-tag.current-player-tag {
+  color: #4CAF50;
+  font-weight: bold;
+}

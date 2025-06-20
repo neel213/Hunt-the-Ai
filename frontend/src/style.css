@@ -1,0 +1,148 @@
+/* Import Orbitron font */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+
+:root {
+  --dark-bg: #1a0e0b;
+  --accent-gold: #e9c989;
+  --text-cyan: #0ff;
+  --error-red: #ff4500;
+  --button-gradient-start: #ff7300;
+  --button-gradient-end: #ff0000;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden;
+  font-family: "Orbitron", sans-serif;
+}
+
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    
+    background: url("src/assets/GPT.png");
+    background-size: cover; /* Ensures the image covers the entire screen */
+    background-position: left top; /* Position at top left */
+    background-repeat: no-repeat;
+    
+    position: relative;
+    margin: 0; /* Remove any default margins */
+  }
+
+.signup-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 14, 11, 0.7); /* Dark overlay for contrast */
+  z-index: 1;
+}
+
+.signup-form {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 40px;
+  border-radius: 15px;
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 20px rgba(233, 201, 137, 0.3);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.signup-form h2 {
+  color: var(--accent-gold);
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(233, 201, 137, 0.5);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.signup-form input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--accent-gold);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--text-cyan);
+  font-family: "Orbitron", sans-serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-form input:focus {
+  border-color: var(--text-cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.signup-form input::placeholder {
+  color: rgba(0, 255, 255, 0.7);
+}
+
+.signup-form button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(
+    45deg,
+    var(--button-gradient-start),
+    var(--button-gradient-end)
+  );
+  color: white;
+  font-family: "Orbitron", sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-form button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+}
+
+.signup-form button:disabled {
+  background: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error-message {
+  color: var(--error-red);
+  font-size: 0.9rem;
+  margin-top: 15px;
+  text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .signup-form {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .signup-form h2 {
+    font-size: 1.5rem;
+  }
+
+  .signup-form input,
+  .signup-form button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+}

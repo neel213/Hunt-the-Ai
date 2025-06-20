@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c66a497a-23c3-400f-9ecc-3ff88915201d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/hunt the ai.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/jsLibraryMappings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/hunt the ai/backend" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2v8bBNF5WqeIfcl8koo4fwMEixp" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Admin/OneDrive/Desktop/Upollo Ai",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c66a497a-23c3-400f-9ecc-3ff88915201d" name="Changes" comment="" />
+      <created>1743529513376</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743529513376</updated>
+      <workItem from="1743529514439" duration="345000" />
+      <workItem from="1743530267565" duration="2172000" />
+      <workItem from="1743579735548" duration="6106000" />
+      <workItem from="1743608006129" duration="1180000" />
+      <workItem from="1743617822174" duration="3053000" />
+      <workItem from="1743621455417" duration="1698000" />
+      <workItem from="1743655488425" duration="33725000" />
+      <workItem from="1743706609947" duration="3706000" />
+      <workItem from="1743737735521" duration="11693000" />
+      <workItem from="1743753288537" duration="729000" />
+      <workItem from="1743755746556" duration="1954000" />
+      <workItem from="1743761325417" duration="529000" />
+      <workItem from="1745046012138" duration="13000" />
+      <workItem from="1748590557926" duration="440000" />
+      <workItem from="1748591152272" duration="159000" />
+      <workItem from="1748855961781" duration="109000" />
+      <workItem from="1749026026114" duration="587000" />
+      <workItem from="1749221882218" duration="588000" />
+      <workItem from="1749226753506" duration="591000" />
+      <workItem from="1749243089350" duration="588000" />
+      <workItem from="1749285479395" duration="613000" />
+      <workItem from="1749286351945" duration="51000" />
+      <workItem from="1750414753379" duration="594000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
